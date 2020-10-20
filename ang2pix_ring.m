@@ -28,9 +28,10 @@ if min(theta)<0 || max(theta)>pi
     error('Theta out of range')
 end
 
-cth_in = cos(theta);
+cth_in = cos(theta);  %z
+%acth_in = abs(cth_in);
 phi_in = mod(phi, 2*pi);
-phi_in = phi_in + (phi <= 0)*2*pi;
+%phi_in = phi_in + (phi <= 0)*2*pi;
 
 band_index = discretize(cth_in*1.5, linspace(-3, 3, 4)); 
 
@@ -57,35 +58,36 @@ if n_sp+n_eq+n_np ~= np
 end
     
 if n_eq > 0  %Equatorial Band
- tt = 0.5 + phi_in(eq_in) / (pi * 0.5);
- zz = cth_in(eq_in) * 0.75; 
+ tt = 0.5 + phi_in(eq_in) / (pi * 0.5);  %check
+ zz = cth_in(eq_in) * 0.75; %check
  
- jp = floor(nl1*(tt-zz));
- jm = floor(nl1*(tt+zz));
+ jp = fix(nl1*(tt-zz));
+ jm = fix(nl1*(tt+zz)); %check
  
- ir = (nl1 + 1) + jp - jm;
- k = ~(bitand(ir, 1));
+ ir = fix((nl1 + 1) + jp - jm);
+ k = fix(1 - mod(ir,2));
  
- ip = bitand(((1-nl1) + jm + jp + k)/ 2 ,  (nl4-1));
+ %ip = bitand(((1-nl1) + jm + jp + k)/ 2 ,  (nl4-1));
+ ip = fix(fix((jp+jm-nl1+k+1)/2));
  
- ipring(eq_in) = ncap + nl4*(ir-1) + ip;
+ ipring(eq_in) = fix(ncap + nl4*(ir-1) + ip);
  tt = 0; zz=0; jp=0; jm=0; ir=0; k=0; ip=0;
 end
 
 if n_np > 0 %North Polar Cap
    tt = phi_in(np_in)/(pi*0.5);
    tp = mod(tt, 1);
-   tmp = sqrt(6) * sin(theta(np_in) * 0.5);
+   tmp = sqrt(3 * (1-abs(cth_in(np_in))));
    
-   jp = nl1 * tp     * tmp;
-   jm = nl1 * (1-tp) * tmp;
+   jp = fix(nl1 .* tp    .* tmp);
+   jm = fix(nl1 .* (1-tp) .* tmp);
    
    ir = jp + jm + 1;
-   ip = (tt * ir) + 1;
-   ir4 = ir*4;
-   ip = ip - ir4*(ip > ir4);
+   ip = fix(tt .* ir) + 1;
+   ir4 = 4 .* ir;
+   ip = fix(ip - ir4.*(ip > ir4));
    
-   ipring(np_in) = 2*ir*(ir-1) + ip - 1;
+   ipring(np_in) = 2*ir.*(ir-1) + ip - 1;
    
    tt = 0; zz=0; jp=0; jm=0; ir=0; k=0; ip=0;
 end
@@ -94,15 +96,15 @@ if n_sp>0 %South Polar Cap
     tt = phi_in(sp_in) / (pi*0.5);
     tp = mod(tt, 1);
     
-    tmp = sqrt(6) * cos(theta(sp_in) * 0.5);
+    tmp = sqrt(3 * (1-abs(cth_in(sp_in))));
     
-    jp = nl1 .* tp .* tmp; 
-    jm = nl1 .* (1 - tp) .* tmp;
+    jp = fix(nl1 .* tp .* tmp); 
+    jm = fix(nl1 .* (1 - tp) .* tmp);
     
     ir = jp + jm + 1;
-    ip = (tt .* ir) + 1;
+    ip = fix(tt .* ir) + 1;
     ir4 = 4 .* ir;
-    ip = ip - ir4.*(ip > ir4);
+    ip = fix(ip - ir4.*(ip > ir4));
     
     ipring(sp_in) = npix - 2*ir.*(ir+1) + ip - 1;
     tt = 0; zz=0; jp=0; jm=0; ir=0; k=0; ip=0;  

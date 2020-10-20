@@ -12,8 +12,7 @@ function [pix] = ang2pix(nside, theta, phi, nest, lonlat)
 
 %Test: 
 %ang2pix(16, pi/2, 0, false, false)
-%ang2pix(16, [pi, 0, pi], [0 ,pi/4, pi/4], false, false)
-%ang2pix(8, pi/2, 0, false, false)
+%ang2pix(16, [pi/2, pi/4, pi/2, 0, pi], [0 ,pi/4, pi/2+1e-15, 0, 0], false, false)
 
 if lonlat == true
     [theta, phi] = lonlat2thetaphi(theta, phi);
