@@ -1,8 +1,8 @@
-function [x2pix, y2pix] = xy2pix(x, y)
+function [x2pix, y2pix] = xy2pix
 %For converting x and y into pixel numbers
 
-x2pix = zeros(1, length(x));
-y2pix = zeros(1, length(y));
+x2pix = zeros(128, 1);
+y2pix = zeros(128, 1);
 
 for i = 1:128 
     
@@ -15,7 +15,7 @@ for i = 1:128
               break
           else
               id = mod(j,2);
-              j  = j/2;
+              j  = fix(j/2);
               k  = ip*id+k;
               ip = ip*4;
           end
