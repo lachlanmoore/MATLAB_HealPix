@@ -1,4 +1,4 @@
-function [x2pix, y2pix] = xy2pix
+function [x2pix, y2pix] = xy2pix()
 %For converting x and y into pixel numbers
 
 x2pix = zeros(128, 1);
