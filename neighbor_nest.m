@@ -50,7 +50,7 @@ localmagic2 = localmagic1*2;
 
 ipf = mod(ipix1, nsidesq);
 
-[ix, iy] = pix2xy_nest(nside, ipf);
+[ix, iy] = pix2xy_nest(nside, ipix1);
 
 ixm = ix-1;
 ixp = ix+1;
