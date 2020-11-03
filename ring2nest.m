@@ -43,7 +43,8 @@ pix_npl = ipring(np_index);
 if length(pix_npl) > 0
     
    ip = round(pix_npl) + 1;
-   irn = fix( sqrt( ip/2 - sqrt(ip/2))) + 1;
+   %irn = fix( sqrt( ip/2 - sqrt(ip/2))) + 1;
+   irn = fix((sqrt(2.*ip) + 1)/2);
    iring(np_index) = irn;
    iphi(np_index) = ip - 2*irn.*(irn-1);
    
@@ -95,7 +96,8 @@ pix_sp = ipring(sp_index);
 if length(pix_sp) > 0
     
     ip = npix - round(pix_sp);
-    irs = fix(sqrt(ip/2 - sqrt(ip/2))) + 1;
+    %irs = fix(sqrt(ip/2 - sqrt(ip/2))) + 1;
+    irs = fix((sqrt(2.*ip) + 1)/2);
     iring(sp_index) = nl4 - irs;
     iphi(sp_index)  = 1 - ip + 2*irs.*(irs+1);
     kshift(sp_index) = 0;

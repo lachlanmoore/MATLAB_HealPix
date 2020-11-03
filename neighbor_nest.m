@@ -50,7 +50,7 @@ localmagic2 = localmagic1*2;
 
 ipf = mod(ipix1, nsidesq);
 
-[ix, iy] = pix2xy_nest(nside, ipix1);
+[ix, iy] = pix2xy_nest(nside, ipf);
 
 ixm = ix-1;
 ixp = ix+1;
@@ -82,6 +82,8 @@ elseif icase == 0
     if icase == 0
        vx = [ixm, ixm, ixm, ix , ixp, ixp, ixp, ix];
        vy = [iym, iy , iyp, iyp, iyp, iy , iym, iym];
+%         vx = [ixm, 3*ixm, 3*ixm, 3*ixm, ixp, ixp, ix, ixm];
+%         vy = [iy, 2*iy-1, 2*iy, 2*iy+1, iy, iym, iym, iym];
        [neighbors] = xy2pix_nest(nside, vx, vy, face_num);
        neighbors = neighbors';
        return

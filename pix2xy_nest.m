@@ -4,7 +4,7 @@ function [ix, iy] = pix2xy_nest(nside, ipf)
 
 [pix2x, pix2y] = pix2xy;
 
-ipf_tmp = ipf-1;
+ipf_tmp = ipf;
 scale = 1;
 ix = 0; iy = 0;
 smax = 2;

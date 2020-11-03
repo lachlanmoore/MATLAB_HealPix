@@ -32,9 +32,9 @@ if not(isempty(phi))
 end
 
 if nest == true
-    neighbors = neighbor_ring(nside, theta);
-elseif nest == false
     neighbors = neighbor_nest(nside, theta);
+elseif nest == false
+    neighbors = neighbor_ring(nside, theta);
 else
     error('nest must be set to true or false')
 end

@@ -9,7 +9,7 @@ function [ipring] = nest2ring(nside, ipnest)
 % Pixel values in ring
 
 if size(ipnest, 1) > size(ipnest, 2)
-    ipix = ipix';
+    ipnest = ipnest';
 end
 
 jrll = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
