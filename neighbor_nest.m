@@ -149,7 +149,7 @@ if ia == 0
             n_8 = other_face * nsidesq + ipo;
             n_1 = xy2pix_nest(nside, ixo-1, iyo, other_face);
         case 5
-            neighbors = 7;
+            neigh = 7;
             other_face = 4+ib;
             n_2 = other_face*nsidesq+nsidesq-1;
             n_1 = n_2-2;
@@ -264,7 +264,7 @@ if ia == 1
             n_7 = ipix1-1;
             n_8 = ipix1-2
         case 6 %
-            neighb = 7;
+            neigh = 7;
             n_1 = ipix1-3;
             n_2 = ipix1-1;
             other_face = 0+ibm;
