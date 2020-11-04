@@ -5,7 +5,8 @@ function [neighbors] = find_neighbors(varargin)
 % Inputs:
 % nside: Pixel resolution, power of 2 less than 30
 % theta, phi: lon lat
-%   If only a theta is given, assumed to be pixel index instead
+%   If only a theta is given, assumed to be pixel index instead. Must
+%   supply [] for phi
 % nest: Bool, if none given default is false
 % lonlat: Bool, if none given default is false
 %   If true, angle inputs assumed to be lat and lon, 

@@ -1,5 +1,5 @@
 function [theta, phi] = lonlat2thetaphi(lon, lat)
-
+%lonlat2thetaphi(lon, lat)
 %Transform longitude and latitude (deg) into co-latitude and longitude (rad)
 %
 %Inputs:

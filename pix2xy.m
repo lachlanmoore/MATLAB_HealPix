@@ -1,5 +1,7 @@
 function [pix2x, pix2y] = pix2xy
+%pix2xy
 %For converting pixel numbers to xy
+%Initilization
 
 pix2x = zeros(1024, 1);
 pix2y = zeros(1024, 1);

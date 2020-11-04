@@ -1,4 +1,5 @@
 function [ipring] = ang2pix_ring(nside, theta, phi)
+%ang2pix_ring(nside, theta, phi)
 %Find the pixel index of a given latitude and longitude in the ring scheme
 %
 %Inputs:

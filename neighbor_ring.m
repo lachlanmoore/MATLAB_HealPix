@@ -1,4 +1,5 @@
 function [neighbors] = neighbor_ring(nside, ipix)
+% neighbor_ring(nside, ipix)
 % Find the pixel neighbors in a ring scheme
 %
 % Inputs:

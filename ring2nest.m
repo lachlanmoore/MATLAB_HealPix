@@ -1,4 +1,5 @@
 function [ipnest] = ring2nest(nside, ipring)
+%ring2nest(nside, ipring)
 %Takes pixel values in a ring scheme and converts to pixel values in nest
 %
 %Inputs:
@@ -79,7 +80,7 @@ if length(pix_eq) > 0
     ifd = ifp - ifm; 
     ifm = 0;
     
-    sub1 = mod(ifp, 4)+4 .* (ifd == 0);
+    sub1 = (mod(ifp, 4)+4) .* (ifd == 0);
     sub2 = ifp .* (ifd == -1);
     sub3 = (ifp + 7) .* (ifd == 1);
     

@@ -1,4 +1,5 @@
 function [ipnest] = ang2pix_nest(nside, theta, phi)
+%ang2pix_nest(nside, theta, phi)
 %Find the pixel index of a given latitude and longitude in the nest scheme
 %
 %Inputs:

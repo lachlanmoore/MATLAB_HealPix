@@ -1,5 +1,5 @@
 function npix = nside2npix(nside)
-
+%nside2npix(nside)
 %Returns the number of pixels based on the nside value
 %nside must be a power of 2 less than 30
 

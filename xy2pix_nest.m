@@ -1,5 +1,5 @@
 function [ipnest] = xy2pix_nest(nside, ix, iy, face_num)
-
+%xy2pix_nest(nside, ix, iy, face_num)
 %Takes x and y and converts to pixel, nested
 
 [x2pix, y2pix] = xy2pix;

@@ -1,5 +1,5 @@
 function [pix] = ang2pix(nside, theta, phi, nest, lonlat)
-
+%ang2pix(nside, theta, phi, nest, lonlat)
 %Find the pixel index given a latitude and longitude in either a ring or
 %nested scheme
 %

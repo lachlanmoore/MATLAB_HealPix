@@ -1,4 +1,5 @@
 function [ipring] = nest2ring(nside, ipnest)
+% nest2ring(nside, ipnest)
 % Convert pixels in a nested scheme into a ring scheme
 %
 % Inputs:
@@ -11,6 +12,8 @@ function [ipring] = nest2ring(nside, ipnest)
 if size(ipnest, 1) > size(ipnest, 2)
     ipnest = ipnest';
 end
+
+npix = nside2npix(nside);
 
 jrll = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
 jpll = [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7];
@@ -59,7 +62,7 @@ pix_eqt = jr(pix_eqt_index);
 if length(pix_eqt) > 0
    nr(pix_eqt_index) = nl1;
    n_before(pix_eqt_index) = fix(ncap + nl4 * (jr(pix_eqt_index) - nl1));
-   kshift(pix_eqt_index) = mod(jr(pix_eqt_index), 2);
+   kshift(pix_eqt_index) = mod(jr(pix_eqt_index)-nl1, 2);
 end
 
 %North Pole Region
