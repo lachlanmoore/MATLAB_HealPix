@@ -7,7 +7,8 @@ function [neighbors_arr] = neighbor_nest(nside, ipix)
 % ipix: Pixel index in nested scheme
 %
 % Outputs:
-% neighbors: Neighboring pixels of input. 6, 7 or 8 depending on location
+% neighbors_arr: Neighboring pixels of input. 6, 7 or 8 depending on location
+
 npix = nside2npix(nside);
 
 if ipix > npix
@@ -95,8 +96,6 @@ for ii = 1:n_ipix
         if icase == 0
            vx = [ixm, ixm, ixm, ix , ixp, ixp, ixp, ix];
            vy = [iym, iy , iyp, iyp, iyp, iy , iym, iym];
-    %         vx = [ixm, 3*ixm, 3*ixm, 3*ixm, ixp, ixp, ix, ixm];
-    %         vy = [iy, 2*iy-1, 2*iy, 2*iy+1, iy, iym, iym, iym];
            [neighbors] = xy2pix_nest(nside, vx, vy, face_num);
            neighbors = neighbors';
            return
@@ -269,7 +268,7 @@ for ii = 1:n_ipix
             case 5
                 other_face = 8+ibm;
                 n_2 = other_face*nsidesq+nsidesq-1;
-                n_1 = n_2-1;
+                n_1 = n_2-2;
                 other_face = 4+ibm;
                 n_3 = other_face*nsidesq+localmagic1;
                 other_face = ibm;
