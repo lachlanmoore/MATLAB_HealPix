@@ -29,8 +29,9 @@ if min(theta)<0 || max(theta)>pi
     error('Theta out of range')
 end
 
-cth_in = cos(theta);  %z
+cth_in = cos(theta);
 %acth_in = abs(cth_in);
+
 phi_in = mod(phi, 2*pi);
 %phi_in = phi_in + (phi <= 0)*2*pi;
 
@@ -59,20 +60,19 @@ if n_sp+n_eq+n_np ~= np
 end
     
 if n_eq > 0  %Equatorial Band
- tt = 0.5 + phi_in(eq_in) / (pi * 0.5);  %check
- zz = cth_in(eq_in) * 0.75; %check
+ tt = 0.5 + phi_in(eq_in) / (pi * 0.5);
+ zz = cth_in(eq_in) * 0.75;
  
  jp = fix(nl1*(tt-zz));
- jm = fix(nl1*(tt+zz)); %check
+ jm = fix(nl1*(tt+zz));
  
  ir = fix((nl1 + 1) + jp - jm);
  k = fix(1 - mod(ir,2));
  
- %ip = bitand(((1-nl1) + jm + jp + k)/ 2 ,  (nl4-1));
- ip = fix(fix((jp+jm-nl1+k+1)/2));
+ ip = bitand(fix(((1-nl1) + jm + jp + k)/ 2), (nl4-1));
+ %ip = fix(fix((jp+jm-nl1+k+1)/2));
  
  ipring(eq_in) = fix(ncap + nl4*(ir-1) + ip);
- tt = 0; zz=0; jp=0; jm=0; ir=0; k=0; ip=0;
 end
 
 if n_np > 0 %North Polar Cap
@@ -89,8 +89,6 @@ if n_np > 0 %North Polar Cap
    ip = fix(ip - ir4.*(ip > ir4));
    
    ipring(np_in) = 2*ir.*(ir-1) + ip - 1;
-   
-   tt = 0; zz=0; jp=0; jm=0; ir=0; k=0; ip=0;
 end
 
 if n_sp>0 %South Polar Cap
@@ -107,8 +105,7 @@ if n_sp>0 %South Polar Cap
     ir4 = 4 .* ir;
     ip = fix(ip - ir4.*(ip > ir4));
     
-    ipring(sp_in) = npix - 2*ir.*(ir+1) + ip - 1;
-    tt = 0; zz=0; jp=0; jm=0; ir=0; k=0; ip=0;  
+    ipring(sp_in) = npix - 2*ir.*(ir+1) + ip - 1;  
 end
 
-end
+end %ang2pix_ring
