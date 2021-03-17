@@ -17,3 +17,5 @@ pix2xy_nest.m
 ring2nest.m
 xy2pix.m
 xy2pix_nest.m
+
+Test
