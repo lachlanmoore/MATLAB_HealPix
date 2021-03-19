@@ -6,6 +6,7 @@ end
 %% Test Functions
 function testFunctionOne(testCase)
     py.importlib.import_module('numpy');
+    py.importlib.import_module('healpy');
     
     colatitude = testCase.TestData.colatitude;
     longitude = testCase.TestData.longitude;
