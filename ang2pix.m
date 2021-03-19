@@ -7,8 +7,8 @@ function [pix] = ang2pix(nside, theta, phi, nest, lonlat)
 %nside: Pixel resolution, power of 2 less than 30
 %theta, phi: Angular coordinates of a point on a sphere
 %nest: Boolean, nested, or default is ring
-%lonlat: Boolean, inputs are default in radians, == true will take in degrees
-    %in colat and lon
+%lonlat: Boolean, inputs are default in radians, == true will take colat
+    %and lon in degrees
 %
 %Test: 
 %ang2pix(16, pi/2, 0, false, false)
