@@ -8,6 +8,9 @@ function [neighbors_arr] = neighbor_nest(nside, ipix)
 %
 % Outputs:
 % neighbors_arr: Neighboring pixels of input. 6, 7 or 8 depending on location
+%
+% Changes:
+% 3-20-21 Update bit manipulation
 
 npix = nside2npix(nside);
 
@@ -21,10 +24,10 @@ neighbors_arr = zeros(n_ipix, 8)-1;
 
 for ii = 1:n_ipix
     ipix1 = ipix(ii);
-
-    neigh = 6;
+    
     
     if nside == 1
+        neigh = 6;
        switch ipix1
            case 0
                neighbors = [ 8, 4, 3, 2, 1, 5 ];
@@ -88,7 +91,7 @@ for ii = 1:n_ipix
             if bitand(ipf,localmagic1) == localmagic1
                 icase = 1;
             elseif bitand(ipf,localmagic1) == 0
-                icase = 1;
+                icase = 2;
             elseif bitand(ipf,localmagic2) == localmagic2
                 icase = 3;
             elseif bitand(ipf,localmagic2) == 0
@@ -100,330 +103,331 @@ for ii = 1:n_ipix
                vy = [iym, iy , iyp, iyp, iyp, iy , iym, iym];
                [neighbors] = xy2pix_nest(nside, vx, vy, face_num);
                neighbors = neighbors';
-               return
+%                return
             end
         end
 
         ia = fix(face_num/4);
         ib = fix(mod(face_num, 4));
         ibp = fix(mod(ib+1, 4));
-        ibm = fix(mod(ib-1, 4));
+        ibm = fix(mod(ib+4-1, 4));
         ib2 = fix(mod(ib+2, 4));
+        if icase ~= 0
+            if ia == 0
+                switch icase 
+                    case 1
+                        other_face = ibp;
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_1 = xy2pix_nest(nside, ixm, iym, face_num);
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_3 = xy2pix_nest(nside, ixm, iyp, face_num);
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);
 
-        if ia == 0
-            switch icase 
-                case 1
-                    other_face = ibp;
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_1 = xy2pix_nest(nside, ixm, iym, face_num);
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_3 = xy2pix_nest(nside, ixm, iyp, face_num);
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);
+                        ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_5 = xy2pix_nest(nside, ixo+1, iyo, other_face);
+                        n_6 = other_face * nsidesq + ipo;
+                        n_7 = xy2pix_nest(nside, ixo-1, iyo, other_face);
+                    case 2
+                        other_face = 4+ib;
+                        ipo = fix(mod(invLSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_1 = xy2pix_nest(nside, ixo, iyo-1, other_face);
+                        n_2 = other_face * nsidesq + ipo;
+                        n_3 = xy2pix_nest(nside, ixo, iyo+1, other_face);
 
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_5 = xy2pix_nest(nside, ixo+1, iyo, other_face);
-                    n_6 = other_face * nsidesq + ipo;
-                    n_7 = xy2pix_nest(nside, ixo-1, iyo, other_face);
-                case 2
-                    other_face = 4+ib;
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_1 = xy2pix_nest(nside, ixo, iyo-1, other_face);
-                    n_2 = other_face * nsidesq + ipo;
-                    n_3 = xy2pix_nest(nside, ixo, iyo+1, other_face);
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_7 = xy2pix_nest(nside, ixp, iym, face_num);
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                        n_5 = xy2pix_nest(nside, ixp, iyp, face_num);
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);  
+                    case 3
+                        other_face = ibm;
+                        ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_3 = xy2pix_nest(nside, ixo, iyo-1, other_face);
+                        n_4 = other_face * nsidesq + ipo;
+                        n_5 = xy2pix_nest(nside, ixo, iyo+1, other_face);
 
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_7 = xy2pix_nest(nside, ixm, iyp, face_num);
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
-                    n_5 = xy2pix_nest(nside, ixp, iyp, face_num);
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);  
-                case 3
-                    other_face = ibm;
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_3 = xy2pix_nest(nside, ixo, iyo-1, other_face);
-                    n_4 = other_face * nsidesq + ipo;
-                    n_5 = xy2pix_nest(nside, ixo, iyo+1, other_face);
+                        n_1 = xy2pix_nest(nside, ixm, iym, face_num);
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_7 = xy2pix_nest(nside, ixp, iym, face_num);
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                    case 4
+                        other_face = 4+ibp;
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_3 = xy2pix_nest(nside, ixm, iyp, face_num); 
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);
+                        n_5 = xy2pix_nest(nside, ixp, iyp, face_num); 
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
 
-                    n_1 = xy2pix_nest(nside, ixm, iym, face_num);
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_7 = xy2pix_nest(nside, ixp, iym, face_num);
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
-                case 4
-                    other_face = 4+ibp;
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_3 = xy2pix_nest(nside, ixm, iyp, face_num); 
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);
-                    n_5 = xy2pix_nest(nside, ixp, iyp, face_num); 
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
-
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_7 = xy2pix_nest(nside, ixo+1, iyo, other_face);
-                    n_8 = other_face * nsidesq + ipo;
-                    n_1 = xy2pix_nest(nside, ixo-1, iyo, other_face);
-                case 5
-                    neigh = 7;
-                    other_face = 4+ib;
-                    n_2 = other_face*nsidesq+nsidesq-1;
-                    n_1 = n_2-2;
-                    other_face = ibm;
-                    n_3 = other_face*nsidesq+localmagic1;
-                    n_4 = n_3+2;
-                    n_5 = ipix1+1;
-                    n_6 = ipix1-1;
-                    n_7 = ipix1-2;
-                case 6
-                    n_1 = ipix1-3;
-                    n_2 = ipix1-1;
-                    n_8 = ipix1-2;
-                    other_face = ibm;
-                    n_4 = other_face*nsidesq+nsidesq-1;
-                    n_3 = n_4-2;
-                    other_face = ib2;
-                    n_5 = other_face*nsidesq+nsidesq-1;
-                    other_face = ibp;
-                    n_6 = other_face*nsidesq+nsidesq-1;
-                    n_7 = n_6-1;
-                case 7
-                    other_face = 8+ib;
-                    n_1 =other_face*nsidesq+nsidesq-1;
-                    other_face=4+ib;
-                    n_2 = other_face*nsidesq+localmagic1;
-                    n_3 = n_2+2;
-                    n_4 = ipix1+2;
-                    n_5 = ipix1+3;
-                    n_6 = ipix1+1;
-                    other_face = 4+ibp;
-                    n_8 = other_face*nsidesq+localmagic2;
-                    n_7 = n_8+1;
-                case 8
-                    neigh = 7;
-                    n_2 = ipix1-1;
-                    n_3 = ipix1+1;
-                    n_4 = ipix1+2;
-                    other_face = ibp;
-                    n_6 = other_face*nsidesq+localmagic2;
-                    n_5 = n_6+1;
-                    other_face = 4+ibp;
-                    n_7 = other_face*nsidesq+nsidesq-1;
-                    n_1 = n_7-1;     
+                        ipo = fix(mod(invMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_7 = xy2pix_nest(nside, ixo+1, iyo, other_face);
+                        n_8 = other_face * nsidesq + ipo;
+                        n_1 = xy2pix_nest(nside, ixo-1, iyo, other_face);
+                    case 5
+                        neigh = 7;
+                        other_face = 4+ib;
+                        n_2 = other_face*nsidesq+nsidesq-1;
+                        n_1 = n_2-2;
+                        other_face = ibm;
+                        n_3 = other_face*nsidesq+localmagic1;
+                        n_4 = n_3+2;
+                        n_5 = ipix1+1;
+                        n_6 = ipix1-1;
+                        n_7 = ipix1-2;
+                    case 6
+                        n_1 = ipix1-3;
+                        n_2 = ipix1-1;
+                        n_8 = ipix1-2;
+                        other_face = ibm;
+                        n_4 = other_face*nsidesq+nsidesq-1;
+                        n_3 = n_4-2;
+                        other_face = ib2;
+                        n_5 = other_face*nsidesq+nsidesq-1;
+                        other_face = ibp;
+                        n_6 = other_face*nsidesq+nsidesq-1;
+                        n_7 = n_6-1;
+                    case 7
+                        other_face = 8+ib;
+                        n_1 =other_face*nsidesq+nsidesq-1;
+                        other_face=4+ib;
+                        n_2 = other_face*nsidesq+localmagic1;
+                        n_3 = n_2+2;
+                        n_4 = ipix1+2;
+                        n_5 = ipix1+3;
+                        n_6 = ipix1+1;
+                        other_face = 4+ibp;
+                        n_8 = other_face*nsidesq+localmagic2;
+                        n_7 = n_8+1;
+                    case 8
+                        neigh = 7;
+                        n_2 = ipix1-1;
+                        n_3 = ipix1+1;
+                        n_4 = ipix1+2;
+                        other_face = ibp;
+                        n_6 = other_face*nsidesq+localmagic2;
+                        n_5 = n_6+1;
+                        other_face = 4+ibp;
+                        n_7 = other_face*nsidesq+nsidesq-1;
+                        n_1 = n_7-1;     
+                end
             end
-        end
 
-        if ia == 1
-            switch icase 
-                case 1
-                    other_face = ib;
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_1 = xy2pix_nest(nside, ixm, iym, face_num);
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_3 = xy2pix_nest(nside, ixm, iyp, face_num);
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);
+            if ia == 1
+                switch icase 
+                    case 1
+                        other_face = ib;
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_1 = xy2pix_nest(nside, ixm, iym, face_num);
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_3 = xy2pix_nest(nside, ixm, iyp, face_num);
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);
 
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_5 = xy2pix_nest(nside, ixo, iyo+1, other_face);
-                    n_6 = other_face * nsidesq + ipo;
-                    n_7 = xy2pix_nest(nside, ixo, iyo-1, other_face); %
-                case 2%
-                    other_face = 8+ibm;
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_1 = xy2pix_nest(nside, ixo, iyo-1, other_face);
-                    n_2 = other_face * nsidesq + ipo;
-                    n_3 = xy2pix_nest(nside, ixo, iyo+1, other_face);
+                        ipo = fix(mod(invLSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_5 = xy2pix_nest(nside, ixo, iyo+1, other_face);
+                        n_6 = other_face * nsidesq + ipo;
+                        n_7 = xy2pix_nest(nside, ixo, iyo-1, other_face); %
+                    case 2 
+                        other_face = 8+ibm;
+                        ipo = fix(mod(invLSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_1 = xy2pix_nest(nside, ixo, iyo-1, other_face);
+                        n_2 = other_face * nsidesq + ipo;
+                        n_3 = xy2pix_nest(nside, ixo, iyo+1, other_face);
 
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_7 = xy2pix_nest(nside, ixm, iyp, face_num);
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
-                    n_5 = xy2pix_nest(nside, ixp, iyp, face_num);
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);  
-                case 3 %
-                    other_face = ibm;
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_3 = xy2pix_nest(ixo-1, iyo, other_face);
-                    n_4 = other_face * nsidesq + ipo;
-                    n_5 = xy2pix_nest(nside, ixo+1, iyo, other_face);
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_7 = xy2pix_nest(nside, ixp, iym, face_num);
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                        n_5 = xy2pix_nest(nside, ixp, iyp, face_num);
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);  
+                    case 3 
+                        other_face = ibm;
+                        ipo = fix(mod(invMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_3 = xy2pix_nest(nside, ixo-1, iyo, other_face);
+                        n_4 = other_face * nsidesq + ipo;
+                        n_5 = xy2pix_nest(nside, ixo+1, iyo, other_face);
 
-                    n_1 = xy2pix_nest(nside, ixm, iym, face_num);
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_7 = xy2pix_nest(nside, ixp, iym, face_num);
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
-                case 4 %
-                    other_face = 8 + ib;
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_3 = xy2pix_nest(nside, ixm, iyp, face_num); 
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);
-                    n_5 = xy2pix_nest(nside, ixp, iyp, face_num); 
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                        n_1 = xy2pix_nest(nside, ixm, iym, face_num);
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_7 = xy2pix_nest(nside, ixp, iym, face_num);
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                    case 4 
+                        other_face = 8 + ib;
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_3 = xy2pix_nest(nside, ixm, iyp, face_num); 
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);
+                        n_5 = xy2pix_nest(nside, ixp, iyp, face_num); 
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
 
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_7 = xy2pix_nest(nside, ixo+1, iyo, other_face);
-                    n_8 = other_face * nsidesq + ipo;
-                    n_1 = xy2pix_nest(nside, ixo-1, iyo, other_face);
-                case 5
-                    other_face = 8+ibm;
-                    n_2 = other_face*nsidesq+nsidesq-1;
-                    n_1 = n_2-2;
-                    other_face = 4+ibm;
-                    n_3 = other_face*nsidesq+localmagic1;
-                    other_face = ibm;
-                    n_4 = other_face*nsidesq;
-                    n_5 = n_4+1;
-                    n_6 = ipix1+1;
-                    n_7 = ipix1-1;
-                    n_8 = ipix1-2;
-                case 6 %
-                    neigh = 7;
-                    n_1 = ipix1-3;
-                    n_2 = ipix1-1;
-                    other_face = 0+ibm;
-                    n_4 = other_face*nsidesq+localmagic1;
-                    n_3 = n_4-1;
-                    other_face = ib;
-                    n_5 = other_face*nsidesq+localmagic2;
-                    n_6 = n_5-2;
-                    n_7 = ipix1-2;
-                case 7
-                    neigh = 7;
-                    other_face = 8+ibm; 
-                    n_1 = other_face*nsidesq+localmagic1;
-                    n_2 = n_1+2;
-                    n_3 = ipix1+2;
-                    n_4 = ipix1+3;
-                    n_5 = ipix1+1;
-                    other_face = 8+ib;
-                    n_7 = other_face*nsidesq+localmagic2;
-                    n_6 = n_7+1;
-                case 8
-                    other_face = 8+ib;
-                    n_8 = other_face*nsidesq+nsidesq-1;
-                    n_1 = n_8-1;
-                    n_2 = ipix1-1;
-                    n_3 = ipix1+1;
-                    n_4 = ipix1+2;
-                    other_face = ib;
-                    n_6 = other_face*nsidesq;
-                    n_5 = n_6+2;
-                    other_face = 4+ibp;
-                    n_7 = other_face*nsidesq+localmagic2;   
-            end  
-        end
+                        ipo = fix(mod(invMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_7 = xy2pix_nest(nside, ixo+1, iyo, other_face);
+                        n_8 = other_face * nsidesq + ipo;
+                        n_1 = xy2pix_nest(nside, ixo-1, iyo, other_face);
+                    case 5
+                        other_face = 8+ibm;
+                        n_2 = other_face*nsidesq+nsidesq-1;
+                        n_1 = n_2-2;
+                        other_face = 4+ibm;
+                        n_3 = other_face*nsidesq+localmagic1;
+                        other_face = ibm;
+                        n_4 = other_face*nsidesq;
+                        n_5 = n_4+1;
+                        n_6 = ipix1+1;
+                        n_7 = ipix1-1;
+                        n_8 = ipix1-2;
+                    case 6 
+                        neigh = 7;
+                        n_1 = ipix1-3;
+                        n_2 = ipix1-1;
+                        other_face = 0+ibm;
+                        n_4 = other_face*nsidesq+localmagic1;
+                        n_3 = n_4-1;
+                        other_face = ib;
+                        n_5 = other_face*nsidesq+localmagic2;
+                        n_6 = n_5-2;
+                        n_7 = ipix1-2;
+                    case 7
+                        neigh = 7;
+                        other_face = 8+ibm; 
+                        n_1 = other_face*nsidesq+localmagic1;
+                        n_2 = n_1+2;
+                        n_3 = ipix1+2;
+                        n_4 = ipix1+3;
+                        n_5 = ipix1+1;
+                        other_face = 8+ib;
+                        n_7 = other_face*nsidesq+localmagic2;
+                        n_6 = n_7+1;
+                    case 8
+                        other_face = 8+ib;
+                        n_8 = other_face*nsidesq+nsidesq-1;
+                        n_1 = n_8-1;
+                        n_2 = ipix1-1;
+                        n_3 = ipix1+1;
+                        n_4 = ipix1+2;
+                        other_face = ib;
+                        n_6 = other_face*nsidesq;
+                        n_5 = n_6+2;
+                        other_face = 4+ibp;
+                        n_7 = other_face*nsidesq+localmagic2;   
+                end  
+            end
 
-        if ia == 2
-            switch icase 
-                case 1
-                    other_face = 4+ibp;
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_1 = xy2pix_nest(nside, ixm, iym, face_num);
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_3 = xy2pix_nest(nside, ixm, iyp, face_num);
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);
+            if ia == 2
+                switch icase 
+                    case 1
+                        other_face = 4+ibp;
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_1 = xy2pix_nest(nside, ixm, iym, face_num);
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_3 = xy2pix_nest(nside, ixm, iyp, face_num);
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);
 
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_5 = xy2pix_nest(nside, ixo, iyo+1, other_face);
-                    n_6 = other_face * nsidesq + ipo;
-                    n_7 = xy2pix_nest(nside, ixo, iyo-1, other_face); %
-                case 2%
-                    other_face = 8+ibm;
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_1 = xy2pix_nest(nside, ixo-1, iyo, other_face);
-                    n_2 = other_face * nsidesq + ipo;
-                    n_3 = xy2pix_nest(nside, ixo+1, iyo, other_face);
+                        ipo = fix(mod(invLSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_5 = xy2pix_nest(nside, ixo, iyo+1, other_face);
+                        n_6 = other_face * nsidesq + ipo;
+                        n_7 = xy2pix_nest(nside, ixo, iyo-1, other_face); %
+                    case 2%
+                        other_face = 8+ibm;
+                        ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_1 = xy2pix_nest(nside, ixo-1, iyo, other_face);
+                        n_2 = other_face * nsidesq + ipo;
+                        n_3 = xy2pix_nest(nside, ixo+1, iyo, other_face);
 
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_7 = xy2pix_nest(nside, ixm, iyp, face_num);
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
-                    n_5 = xy2pix_nest(nside, ixp, iyp, face_num);
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);  
-                case 3 %
-                    other_face = 4+ib;
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_3 = xy2pix_nest(ixo-1, iyo, other_face);
-                    n_4 = other_face * nsidesq + ipo;
-                    n_5 = xy2pix_nest(nside, ixo+1, iyo, other_face);
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_7 = xy2pix_nest(nside, ixp, iym, face_num);
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                        n_5 = xy2pix_nest(nside, ixp, iyp, face_num);
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);  
+                    case 3 %
+                        other_face = 4+ib;
+                        ipo = fix(mod(invMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_3 = xy2pix_nest(nside, ixo-1, iyo, other_face);
+                        n_4 = other_face * nsidesq + ipo;
+                        n_5 = xy2pix_nest(nside, ixo+1, iyo, other_face);
 
-                    n_1 = xy2pix_nest(nside, ixm, iym, face_num);
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_8 = xy2pix_nest(nside, ix, iym, face_num);
-                    n_7 = xy2pix_nest(nside, ixp, iym, face_num);
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
-                case 4 %
-                    other_face = 8 + ibp;
-                    n_2 = xy2pix_nest(nside, ixm, iy, face_num);
-                    n_3 = xy2pix_nest(nside, ixm, iyp, face_num); 
-                    n_4 = xy2pix_nest(nside, ix, iyp, face_num);
-                    n_5 = xy2pix_nest(nside, ixp, iyp, face_num); 
-                    n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                        n_1 = xy2pix_nest(nside, ixm, iym, face_num);
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_8 = xy2pix_nest(nside, ix, iym, face_num);
+                        n_7 = xy2pix_nest(nside, ixp, iym, face_num);
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
+                    case 4 %
+                        other_face = 8 + ibp;
+                        n_2 = xy2pix_nest(nside, ixm, iy, face_num);
+                        n_3 = xy2pix_nest(nside, ixm, iyp, face_num); 
+                        n_4 = xy2pix_nest(nside, ix, iyp, face_num);
+                        n_5 = xy2pix_nest(nside, ixp, iyp, face_num); 
+                        n_6 = xy2pix_nest(nside, ixp, iy, face_num);
 
-                    ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
-                    [ixo, iyo] = pix2xy_nest(nside, ipo);
-                    n_7 = xy2pix_nest(nside, ixo, iyo+1, other_face);
-                    n_8 = other_face * nsidesq + ipo;
-                    n_1 = xy2pix_nest(nside, ixo, iyo-1, other_face);
-                case 5
-                    neigh = 7;
-                    other_face = 8+ibm;
-                    n_2 = other_face*nsidesq+localmagic1;
-                    n_1 = n_2-1;
-                    other_face = 4+ib;
-                    n_3 = other_face*nsidesq;
-                    n_4 = n_3+1;
-                    n_5 = ipix1+1;
-                    n_6 = ipix1-1;
-                    n_7 = ipix1-2;
-                case 6 %
-                    n_1 = ipix1-3;
-                    n_2 = ipix1-1;
-                    other_face = 4+ib;
-                    n_4 = other_face*nsidesq+localmagic1;
-                    n_3 = n_4-1;
-                    other_face= ib;
-                    n_5 = other_face*nsidesq;
-                    other_face = 4+ibp;
-                    n_6 = other_face*nsidesq+localmagic2;
-                    n_7 = n_6-2;
-                    n_8 = ipix1-2;
-                case 7
-                    other_face = 8+ib2;
-                    n_1 = other_face*nsidesq;
-                    other_face = 8+ibm;
-                    n_2 = other_face*nsidesq;
-                    n_3 = n_2+1;
-                    n_4 = ipix1+2;
-                    n_5 = ipix1+3;
-                    n_6 = ipix1+1;
-                    other_face = 8+ibp;
-                    n_8 = other_face*nsidesq;
-                    n_7 = n_8+2;
-                case 8
-                    neigh = 7;
-                    other_face = 8+ibp;
-                    n_7 = other_face*nsidesq+localmagic2;
-                    n_1 = n_7-2;
-                    n_2 = ipix1-1;
-                    n_3 = ipix1+1;
-                    n_4 = ipix1+2;
-                    other_face = 4+ibp;
-                    n_6 = other_face*nsidesq;
-                    n_5 = n_6+2;  
-            end  
-        end
+                        ipo = fix(mod(swapLSBMSB(ipf), nsidesq));
+                        [ixo, iyo] = pix2xy_nest(nside, ipo);
+                        n_7 = xy2pix_nest(nside, ixo, iyo+1, other_face);
+                        n_8 = other_face * nsidesq + ipo;
+                        n_1 = xy2pix_nest(nside, ixo, iyo-1, other_face);
+                    case 5
+                        neigh = 7;
+                        other_face = 8+ibm;
+                        n_2 = other_face*nsidesq+localmagic1;
+                        n_1 = n_2-1;
+                        other_face = 4+ib;
+                        n_3 = other_face*nsidesq;
+                        n_4 = n_3+1;
+                        n_5 = ipix1+1;
+                        n_6 = ipix1-1;
+                        n_7 = ipix1-2;
+                    case 6 %
+                        n_1 = ipix1-3;
+                        n_2 = ipix1-1;
+                        other_face = 4+ib;
+                        n_4 = other_face*nsidesq+localmagic1;
+                        n_3 = n_4-1;
+                        other_face= ib;
+                        n_5 = other_face*nsidesq;
+                        other_face = 4+ibp;
+                        n_6 = other_face*nsidesq+localmagic2;
+                        n_7 = n_6-2;
+                        n_8 = ipix1-2;
+                    case 7
+                        other_face = 8+ib2;
+                        n_1 = other_face*nsidesq;
+                        other_face = 8+ibm;
+                        n_2 = other_face*nsidesq;
+                        n_3 = n_2+1;
+                        n_4 = ipix1+2;
+                        n_5 = ipix1+3;
+                        n_6 = ipix1+1;
+                        other_face = 8+ibp;
+                        n_8 = other_face*nsidesq;
+                        n_7 = n_8+2;
+                    case 8
+                        neigh = 7;
+                        other_face = 8+ibp;
+                        n_7 = other_face*nsidesq+localmagic2;
+                        n_1 = n_7-2;
+                        n_2 = ipix1-1;
+                        n_3 = ipix1+1;
+                        n_4 = ipix1+2;
+                        other_face = 4+ibp;
+                        n_6 = other_face*nsidesq;
+                        n_5 = n_6+2;  
+                end  
+            end
 
 
-        if neigh == 8
-            neighbors = [n_1, n_2, n_3, n_4, n_5, n_6, n_7, n_8];
-        else
-            neighbors = [n_1, n_2, n_3, n_4, n_5, n_6, n_7];
+            if neigh == 8
+                neighbors = [n_1, n_2, n_3, n_4, n_5, n_6, n_7, n_8];
+            else
+                neighbors = [n_1, n_2, n_3, n_4, n_5, n_6, n_7];
+            end
         end
 
     end %if nside==1
@@ -435,10 +439,23 @@ end % FOR loop
 end % NEIGHBOR_NEST
 
 
+%% Bit Manipulation
+
     function [i] = swapLSBMSB(i)
         oddbits = 89478485;
         evenbits = 178956970;
-        
         i = bitand(i,evenbits)/2 + bitand(i,oddbits)*2;
         
+    end
+    
+    function [i] = invMSB(i)
+        evenbits=178956970;
+        i = bitxor(i, evenbits);
+        
+    end
+    
+    
+    function [i] = invLSB(i)
+        oddbits = 89478485;
+        i = bitxor(i,oddbits);
     end
