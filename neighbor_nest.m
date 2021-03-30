@@ -8,7 +8,7 @@ function [neighbors_arr] = neighbor_nest(nside, ipix)
 %
 % Outputs:
 % neighbors_arr: Neighboring pixels of input. 6, 7 or 8 depending on location
-%
+
 % Changes:
 % 3-20-21 Update bit manipulation
 
